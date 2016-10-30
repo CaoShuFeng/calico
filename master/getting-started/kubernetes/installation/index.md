@@ -114,15 +114,22 @@ cat >/etc/cni/net.d/10-calico.conf <<EOF
         "type": "calico-ipam"
     },
     "policy": {
-        "type": "k8s"
+        "type": "k8s",
+    },
+    "kubernetes": {
+        "kubeconfig": "</PATH/TO/KUBECONFIG>"
     }
 }
 EOF
 ```
 
 Replace `<ETCD_IP>:<ETCD_PORT>` with your etcd configuration.
+Replace `</PATH/TO/KUBECONFIG>` with your kubeconfig file. See [kubernetes kubeconfig](http://kubernetes.io/docs/user-guide/kubeconfig-file/) for more information
+about kubeconfig.
 
-For more information on configuring the Calico CNI plugins, see the [configuration guide](https://github.com/projectcalico/calico-cni/blob/v1.4.1/configuration.md)
+If your kube-apiserver is configured with authentication like client certificates, bearer tokens, or HTTP basic auth, you also
+needs to specify authentication method in CNI config file. For more information on configuring the Calico CNI plugins,
+See the [configuration guide](https://github.com/projectcalico/calico-cni/blob/v1.4.1/configuration.md)
 
 ### 3. Deploy the Calico network policy controller
 The `calico/kube-policy-controller` implements the Kubernetes NetworkPolicy API by watching the Kubernetes API for Pod, Namespace, and 
@@ -207,7 +214,8 @@ ExecStart=/opt/bin/kubelet \
 --api-servers=http://<API SERVER IP>:8080 \
 --network-plugin-dir=/etc/cni/net.d \
 --network-plugin=cni \
---logtostderr=true
+--logtostderr=true \
+--kubeconfig=/etc/kubernetes/kubelet.conf
 Restart=always
 RestartSec=10
 
